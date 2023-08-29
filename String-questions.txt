@@ -1,0 +1,51 @@
+Of course! Here are two Java interview questions that could be commonly asked:
+
+### Question 1: String Immutability and String Pool
+
+**Question**: Explain the concept of string immutability in Java. How does the String Pool work, and what are its implications?
+
+**Answer**: In Java, a string is an immutable object, which means its value cannot be changed after it's created. When you modify a string, a new string object is created with the modified value, leaving the original string unchanged. This immutability ensures that strings can be safely shared between different parts of a program without unexpected side effects.
+
+The String Pool is a memory area in the Java heap that stores a pool of string literals to conserve memory. When you create a string using a literal, Java checks if an identical string already exists in the pool. If it does, the new reference points to the existing string in the pool. This allows multiple variables to share the same string instance, reducing memory consumption.
+
+For example:
+```java
+String s1 = "Hello"; // Creates a string in the pool
+String s2 = "Hello"; // References the same string in the pool as s1
+```
+
+The implications of string immutability and the String Pool include:
+- Efficiency: Reusing string instances reduces memory usage and enhances performance.
+- Safety: Immutable strings prevent unintended modifications, ensuring data integrity.
+- Thread Safety: Strings are safe for concurrent access, as their values cannot change.
+- Concatenation: String concatenation using the `+` operator creates new string instances, potentially impacting performance. Consider using `StringBuilder` for efficient concatenation.
+
+### Question 2: Difference Between `equals()` and `==`
+
+**Question**: Explain the difference between the `equals()` method and the `==` operator in Java. When would you use one over the other?
+
+**Answer**: Both the `equals()` method and the `==` operator are used to compare objects in Java, but they have different purposes and behaviors.
+
+- The `equals()` method: This method is defined in the `Object` class and can be overridden by classes that want to provide custom comparison logic. By default, `equals()` compares object references (memory addresses). However, many Java classes, including `String`, `Integer`, and custom classes, override `equals()` to compare their content. It's essential to implement `equals()` properly when dealing with custom classes.
+
+  Example:
+  ```java
+  String s1 = new String("Hello");
+  String s2 = new String("Hello");
+  boolean isEqual = s1.equals(s2); // true (content comparison)
+  ```
+
+- The `==` operator: This operator compares object references (memory addresses) directly. For objects, it checks if two references point to the same memory location, indicating the same object instance. For primitive types, it compares their actual values.
+
+  Example:
+  ```java
+  String s1 = new String("Hello");
+  String s2 = new String("Hello");
+  boolean isSameReference = (s1 == s2); // false (different instances)
+  ```
+
+When to use each:
+- Use `equals()` when you want to compare the content of objects, especially for strings and custom classes.
+- Use `==` when you want to check if two references point to the same object instance, or for primitive type comparisons.
+
+Understanding the difference between `equals()` and `==` is crucial to avoid unintended behavior and to ensure correct comparison logic in your code.
