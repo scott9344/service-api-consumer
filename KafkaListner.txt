@@ -1,0 +1,78 @@
+@PostConstruct
+	public void init() {
+		log.info("initializing api consumer with features:{}", features);
+
+		messageAttemptCounter = meter.counter(PROCESSING_METRIC_NAME, getProcessingMetricTags("message_attempt"));
+		recordsProcessedCounter = meter.counter(PROCESSING_METRIC_NAME, getProcessingMetricTags("records_processed"));
+		messageErrorCounter = meter.counter(PROCESSING_METRIC_NAME, getProcessingMetricTags("message_error"));
+
+		// initialize latency gauge
+		List<Tag> tags = new ArrayList<>();
+		Tag groupId = new ImmutableTag(CONSUMER_GROUP_TAG_NAME, kafkaProperties.getConsumer().getGroupId());
+		tags.add(groupId);
+		latencyGauge = meter.gauge("api_consumer_latency", tags, new AtomicLong(-1));
+	}
+
+	@KafkaListener(topics = "${api.kafka.topic}", containerFactory = "batchFactory")
+	public void onMessage(List<ConsumerRecord<apiKey, api>> consumerRecords, Acknowledgment acknowledgment) {
+		try {
+			messageAttemptCounter.increment();
+
+			processRecords(consumerRecords, acknowledgment);
+
+			recordsProcessedCounter.increment(consumerRecords.size());
+		} catch (Exception e) {
+			messageErrorCounter.increment();
+
+			handleProcessingException(consumerRecords, e);
+		}
+	}
+/**
+	 * Logs the exception and throws a ConsumerException
+	 */
+	private void handleProcessingException(List<ConsumerRecord<apiKey, api>> consumerRecords, Exception e) throws ConsumerException {
+
+		String msg;
+		if (!consumerRecords.isEmpty()) {
+			ConsumerRecord<apiKey, api> first = consumerRecords.get(0);
+			ConsumerRecord<apiKey, api> last = consumerRecords.get(consumerRecords.size() - 1);
+			msg = "exception processing records " +
+					" topic:" + first.topic() +
+					" partition:" + first.partition() +
+					" from offset:" + first.offset() +
+					" to offset:" + last.offset() +
+					" from timestamp:" + first.timestamp() +
+					" to timestamp:" + last.timestamp() +
+					" from key:" + first.key() +
+					" to key:" + last.key();
+		} else {
+			msg = "Unexpected error trying to processRecords empty list of consumer records";
+		}
+		log.error(msg, e);
+		throw new ConsumerException(msg, e);
+	}
+
+	private void processRecords(List<ConsumerRecord<apiKey, api>> consumerRecords, Acknowledgment acknowledgment) {
+
+		if (log.isDebugEnabled()) {
+			log.debug("processing {} api records", consumerRecords.size());
+		}
+
+		final ProcessingContext context = new ProcessingContext();
+
+		collectapiDetails(consumerRecords, context);
+		collectapiIndexRequests(context);
+
+		saveToCassandra(context);
+		saveToCassandraStreamIndex(context);
+		saveToCassandraEnrolleeIndex(context);
+		saveToElastic(context);
+
+		publishErrorsToDeadLetterTopic(context);
+
+		updateLatencyGauge(context);
+
+		acknowledgment.acknowledge();
+
+		log.debug("consumer record processing complete");
+	}
