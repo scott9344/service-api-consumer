@@ -1,0 +1,45 @@
+Certainly! Here are some Kafka-related interview questions along with their answers:
+
+**Kafka Producer:**
+
+1. **Q: What is a Kafka Producer?**
+   - A Kafka Producer is a client application that sends data to Kafka topics.
+
+2. **Q: How do you configure a Kafka Producer?**
+   - You configure a Kafka Producer by providing properties like bootstrap servers, key and value serializers, and topic name.
+
+3. **Q: What is the role of the "acks" configuration in a Kafka Producer?**
+   - The "acks" configuration determines how many acknowledgments the producer requires the leader to receive before considering a message as sent.
+
+4. **Q: Explain Kafka message partitioning.**
+   - Kafka messages are partitioned across different brokers to achieve parallelism and scalability. The producer can optionally provide a key, and based on this key, a partition is chosen for the message.
+
+**Kafka Consumer:**
+
+1. **Q: What is a Kafka Consumer?**
+   - A Kafka Consumer is a client application that reads data from Kafka topics.
+
+2. **Q: What is a Consumer Group in Kafka?**
+   - A consumer group is a group of consumers that work together to consume and process messages from Kafka topics. Each message in a topic is delivered to only one consumer within a group.
+
+3. **Q: How does Kafka ensure fault tolerance for consumers?**
+   - Kafka uses a feature called offset management. Consumer offsets are regularly committed to Kafka, and in case a consumer crashes, it can resume from the last committed offset.
+
+4. **Q: What is the significance of the "auto.offset.reset" configuration in a Kafka Consumer?**
+   - This configuration determines what happens when a consumer first joins a consumer group or when it loses its offset. It specifies whether the consumer should start from the earliest available offset or the latest offset in the topic.
+
+**Kafka Streams:**
+
+1. **Q: What are Kafka Streams?**
+   - Kafka Streams is a client library for building real-time stream processing applications that consume, transform, and produce data records.
+
+2. **Q: How do Kafka Streams achieve scalability and fault tolerance?**
+   - Kafka Streams applications are stateful and can be distributed across multiple instances. They leverage Kafka's internal mechanisms for partitioning, replication, and failover.
+
+3. **Q: What is the purpose of windowing in Kafka Streams?**
+   - Windowing allows you to group and process records within a specified time or size window. It's useful for operations like aggregations over specific time intervals.
+
+4. **Q: How does Kafka Streams handle stateful operations?**
+   - Kafka Streams provides abstractions for handling state, such as aggregations and joins, by managing state stores either in-memory or backed by external databases.
+
+Remember, these questions cover a range of Kafka concepts, and interviewers may ask follow-up questions to gauge your deeper understanding of the technology. It's always a good idea to practice hands-on with Kafka and review its documentation to be well-prepared.
