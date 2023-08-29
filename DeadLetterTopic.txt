@@ -1,0 +1,40 @@
+
+
+@Component
+public class DeadLetterProducer {
+
+	private static final Logger log = LoggerFactory.getLogger(DeadLetterProducer.class);
+
+	@Autowired
+	private KafkaTemplate<DeadLetterRecordKey, DeadLetterRecord> kafkaTemplate;
+
+	@Autowired
+	private KafkaConfigProps kafkaConfigProps;
+
+	@Autowired
+	private KafkaProperties kafkaProperties;
+
+	public void send(ConsumerRecord<? extends SpecificRecord, ? extends SpecificRecord> consumerRecord, Exception consumerException) {
+
+		log.warn("Sending message to dead letter topic. Unable to transform eligibility consumer record key:" + consumerRecord.key() + " value:" + consumerRecord.value(), consumerException);
+		try {
+
+			ProducerRecord<DeadLetterRecordKey, DeadLetterRecord> producerRecord = new DeadLetterRecordBuilder()
+					.withConsumerRecord(consumerRecord)
+					.withConsumerException(consumerException)
+					.withGroupId(kafkaProperties.getConsumer().getGroupId())
+					.withDeadLetterTopic(kafkaConfigProps.getDeadLetter().getTopic())
+					.build();
+
+			kafkaTemplate.send(producerRecord).get(
+					kafkaConfigProps.getDeadLetter().getSendTimeoutMillis(),
+					TimeUnit.MILLISECONDS
+			);
+			log.warn("Dead letter message sent to topic:{}", kafkaConfigProps.getDeadLetter().getTopic());
+		} catch (Exception sendException) {
+			log.error("Error sending record to dead letter topic", sendException);
+			throw new DeadLetterException("Error sending record to dead letter topic", sendException);
+		}
+	}
+
+}
