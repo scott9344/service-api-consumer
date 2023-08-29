@@ -1,0 +1,83 @@
+@Configuration
+@EnableKafka
+@Profile("!integration-test") // configure real schema registry when not running in test profile
+public class KafkaConfig {
+
+	private static final Logger log = LoggerFactory.getLogger(KafkaConfig.class);
+
+	@Autowired
+	private KafkaProperties kafkaProperties;
+
+	@Autowired
+	private KafkaConfigProps kafkaConfigProps;
+
+	@Bean
+	public ConcurrentKafkaListenerContainerFactory batchFactory() {
+
+		log.info("Creating kafka listener container factory with config: {}", kafkaConfigProps);
+
+		ConcurrentKafkaListenerContainerFactory<Object, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+
+		factory.setConcurrency(kafkaConfigProps.getConsumer().getConcurrency());
+		factory.setConsumerFactory(consumerFactory());
+		factory.setBatchListener(true);
+
+		factory.getContainerProperties().setAckMode(MANUAL);
+		factory.setBatchErrorHandler(new SeekToCurrentBatchErrorHandler());
+		factory.getContainerProperties().setPollTimeout(kafkaConfigProps.getConsumer().getPollTimeout());
+		factory.getContainerProperties().setCommitLogLevel(
+				LogIfLevelEnabled.Level.valueOf(
+						kafkaConfigProps.getConsumer().getCommitLogLevel()
+				)
+		);
+
+		return factory;
+	}
+
+	private ConsumerFactory consumerFactory() {
+
+		log.info("Using schema registry url: {}", kafkaConfigProps.getSchemaRegistryUrl());
+
+		Map<String, String> config = new HashMap<>();
+		config.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaConfigProps.getSchemaRegistryUrl());
+		config.put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, "true");
+
+		KafkaAvroLoggingDeserializer keyDeserializer = new KafkaAvroLoggingDeserializer();
+		keyDeserializer.configure(config, true);
+
+		KafkaAvroLoggingDeserializer valueDeserializer = new KafkaAvroLoggingDeserializer();
+		valueDeserializer.configure(config, false);
+
+		return new DefaultKafkaConsumerFactory<>(
+				kafkaProperties.buildConsumerProperties(),
+				keyDeserializer,
+				valueDeserializer
+		);
+	}
+
+	@Bean
+	public ProducerFactory producerFactory() {
+
+		Map<String, String> config = new HashMap<>();
+		config.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, kafkaConfigProps.getSchemaRegistryUrl());
+
+		KafkaAvroSerializer keySerializer = new KafkaAvroSerializer();
+		keySerializer.configure(config, true);
+
+		KafkaAvroSerializer valueSerializer = new KafkaAvroSerializer();
+		valueSerializer.configure(config, false);
+
+		return new DefaultKafkaProducerFactory<>(
+				kafkaProperties.buildProducerProperties(),
+				keySerializer,
+				valueSerializer
+		);
+	}
+
+	@Bean
+	@SuppressWarnings("unchecked")
+	public KafkaTemplate kafkaTemplate() {
+
+		return new KafkaTemplate(producerFactory());
+	}
+}
