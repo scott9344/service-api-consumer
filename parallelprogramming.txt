@@ -1,0 +1,203 @@
+package com.optum.eligibility.eligibilityserviceapi.controller;
+
+
+import com.optum.eligibility.eligibilityserviceapi.service.InvokeExternalService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+
+@RestController
+public class ParallelController {
+
+
+    @Autowired
+    Executor applicationThreadPool;
+
+    @Autowired
+    InvokeExternalService invokeExternalService;
+
+    @GetMapping("/fetch/{cityName}")
+    ResponseEntity<String> getClimate(@PathVariable String cityName) throws ExecutionException, InterruptedException {
+        System.out.println(Runtime.getRuntime().availableProcessors());
+        long start = System.currentTimeMillis();
+        CompletableFuture<String> value1 = CompletableFuture.supplyAsync(() -> {
+            long taskStart = System.currentTimeMillis();
+            String result = invokeExternalService.invokeExternalService(cityName);
+            try {
+                myTaskIsHoldForFive();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            long taskEnd = System.currentTimeMillis();
+            System.out.println("Task 1 time taken: " + "Threads used "+ Thread.currentThread().getName() +" " + (taskEnd - taskStart));
+            return result;
+        }, applicationThreadPool);
+        CompletableFuture<String> value2 = CompletableFuture.supplyAsync(() -> {
+            long taskStart = System.currentTimeMillis();
+            String result = invokeExternalService.invokeForMyBDAYExternalService(cityName);
+            try {
+                myTaskIsHoldForFive();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            long taskEnd = System.currentTimeMillis();
+            System.out.println("Task 2 time taken: " + "Threads used "+ Thread.currentThread().getName() +" " + (taskEnd - taskStart));
+            return result;
+        }, applicationThreadPool);
+
+        CompletableFuture<String> value3 = CompletableFuture.supplyAsync(() -> {
+            long taskStart = System.currentTimeMillis();
+            String result = invokeExternalService.invokeForMyBDAYExternalService(cityName);
+            try {
+                myTaskIsHoldForFive();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            long taskEnd = System.currentTimeMillis();
+            System.out.println("Task 3 time taken: " + "Threads used "+ Thread.currentThread().getName() +" " + (taskEnd - taskStart));
+            return result;
+        }, applicationThreadPool);
+
+        CompletableFuture<String> value4 = CompletableFuture.supplyAsync(() -> {
+            long taskStart = System.currentTimeMillis();
+            String result = invokeExternalService.invokeForMyBDAYExternalService(cityName);
+            try {
+                myTaskIsHoldForFive();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            long taskEnd = System.currentTimeMillis();
+            System.out.println("Task 4 time taken: " + "Threads used "+ Thread.currentThread().getName() +" " + (taskEnd - taskStart));
+            return result;
+        }, applicationThreadPool);
+
+        CompletableFuture<String> value5 = CompletableFuture.supplyAsync(() -> {
+            long taskStart = System.currentTimeMillis();
+            String result = invokeExternalService.invokeForMyBDAYExternalService(cityName);
+            try {
+                myTaskIsHoldForFive();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            long taskEnd = System.currentTimeMillis();
+            System.out.println("Task 5 time taken: " + "Threads used "+ Thread.currentThread().getName() +" " + (taskEnd - taskStart));
+            return result;
+        }, applicationThreadPool);
+
+        CompletableFuture<String> value6 = CompletableFuture.supplyAsync(() -> {
+            long taskStart = System.currentTimeMillis();
+            String result = invokeExternalService.invokeForMyBDAYExternalService(cityName);
+            try {
+                myTaskIsHoldForFive();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            long taskEnd = System.currentTimeMillis();
+            System.out.println("Task 6 time taken: " + "Threads used "+ Thread.currentThread().getName() +" " + (taskEnd - taskStart));
+            return result;
+        }, applicationThreadPool);
+
+        CompletableFuture<String> value7 = CompletableFuture.supplyAsync(() -> {
+            long taskStart = System.currentTimeMillis();
+            String result = invokeExternalService.invokeForMyBDAYExternalService(cityName);
+            try {
+                myTaskIsHoldForFive();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            long taskEnd = System.currentTimeMillis();
+            System.out.println("Task 7 time taken: " + "Threads used "+ Thread.currentThread().getName() +" " + (taskEnd - taskStart));
+            return result;
+        }, applicationThreadPool);
+
+        CompletableFuture<String> value8 = CompletableFuture.supplyAsync(() -> {
+            long taskStart = System.currentTimeMillis();
+            String result = invokeExternalService.invokeForMyBDAYExternalService(cityName);
+            try {
+                myTaskIsHoldForFive();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            long taskEnd = System.currentTimeMillis();
+            System.out.println("Task 8 time taken: " + "Threads used "+ Thread.currentThread().getName() +" " + (taskEnd - taskStart));
+            return result;
+        }, applicationThreadPool);
+
+        CompletableFuture<String> value9 = CompletableFuture.supplyAsync(() -> {
+            long taskStart = System.currentTimeMillis();
+            String result = invokeExternalService.invokeForMyBDAYExternalService(cityName);
+            try {
+                myTaskIsHoldForFive();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            long taskEnd = System.currentTimeMillis();
+            System.out.println("Task 9 time taken: " + "Threads used "+ Thread.currentThread().getName() +" " + (taskEnd - taskStart));
+            return result;
+        }, applicationThreadPool);
+
+        CompletableFuture<String> value10 = CompletableFuture.supplyAsync(() -> {
+            long taskStart = System.currentTimeMillis();
+            String result = invokeExternalService.invokeForMyBDAYExternalService(cityName);
+            try {
+                myTaskIsHoldForFive();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            long taskEnd = System.currentTimeMillis();
+            System.out.println("Task 10 time taken: " + "Threads used "+ Thread.currentThread().getName() +" " + (taskEnd - taskStart));
+            return result;
+        }, applicationThreadPool);
+
+        CompletableFuture.runAsync(() -> {
+            long taskStart = System.currentTimeMillis();
+            try {
+                myTaskIsHoldForFive();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            long taskEnd = System.currentTimeMillis();
+            System.out.println("Task 11 time taken: " + "Threads used "+ Thread.currentThread().getName() +" " + (taskEnd - taskStart));
+        });
+
+        CompletableFuture<Void> combined = CompletableFuture.allOf(value1, value2, value3, value4, value5, value6, value7, value8, value9, value10);
+        combined.join(); // Wait for both tasks to complete
+
+        long end = System.currentTimeMillis();
+        System.out.println("Total time taken: " + (end - start));
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(value1.get());
+        builder.append(value2.get());
+        builder.append(value3.get());
+        builder.append(value4.get());
+        builder.append(value5.get());
+        builder.append(value6.get());
+        builder.append(value7.get());
+        builder.append(value8.get());
+        builder.append(value9.get());
+        builder.append(value10.get());
+
+        return new ResponseEntity<>(builder.toString(), HttpStatus.OK);
+
+    }
+
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<String> getUser(@PathVariable Long userId) {
+        return new ResponseEntity<>("hello"+userId, HttpStatus.OK);
+    }
+
+    void myTaskIsHoldForFive() throws InterruptedException {
+        Thread.sleep(5000);
+        System.out.println("I won;t impact");
+    }
+
+}
